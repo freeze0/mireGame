@@ -57,7 +57,7 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
 
 В первую очередь, мы расширили функционал игрока, добавив несколько новых характеристик:
 
-'''clojure
+```clojure
 (def ^:dynamic *player-name*)
 (def ^:dynamic *health*)
 (def ^:dynamic *score*)
@@ -66,12 +66,11 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
 (def ^:dynamic *armor*)
 (def ^:dynamic *weapon*)
 (def ^:dynamic *last-message*)
-
-'''
+```
 
 Для реализации новых характеристик игрока, нам потребовалось расширить предметы в комнатах:
 
-'''clojure
+```clojure
 (defn load-room [rooms file]
   (let [room (read-string (slurp (.getAbsolutePath file)))]
     (conj rooms
@@ -79,35 +78,35 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
            {:money (ref (:money (or (:items room))))
             :weapons (ref (or (:weapons (:items room)) #{}))
             :armors (ref (or (:armors (:items room)) #{})
-'''
+```
 
 Было решено добавить несколько комнат, а так же понадобилось переписать функционал изначальных комнат под новые предметы:
 
 ### closet
-'''clojure
+```clojure
 {:desc "This is the Armor Store. And yes, it's closet."
  :exits {:south :start}
  :items {:money 1 :weapons #{} :armors #{}}
  :store {:armor {:divine 1 :magic 2 :heavy 3}}}
-'''
+```
 
 ### restroom
 '''clojure
 {:desc "It's our little hostpital."
  :exits {:north :start :south :bedroom :east :promenade :west :promenade}
  :items {:money 7 :weapons #{} :armors #{}}}
-'''
+```
 
 ### bedroom
-'''clojure
+```clojure
 {:desc "Maybe you wanna watch TV?"
  :exits {:north :restroom :south :kitchen}
  :items {:money 7 :weapons #{} :armors #{}}}
-'''
+```
 
 И переписали server.clj под нашу реализацию.
 
-'''clojure
+```clojure
 (defn load-room [rooms file]
   (let [room (read-string (slurp (.getAbsolutePath file)))]
     (conj rooms
@@ -115,6 +114,6 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
            {:money (ref (:money (or (:items room))))
             :weapons (ref (or (:weapons (:items room)) #{}))
             :armors (ref (or (:armors (:items room)) #{})
-'''
+```
 
 Самым сложной и трудоёмкой работой - вышла реализация бота, файл -> mirebot.pl. Было реализовано: взаимодействие с игровым сервером, обработка команд перемещения, взятия оружия и брони, отправка сообщений и запрос статистики.

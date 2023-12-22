@@ -104,6 +104,72 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
  :items {:money 7 :weapons #{} :armors #{}}}
 ```
 
+Осталось только обновить файл commands.clj чтобы мы могли воспользоваться новым функционалом:
+
+### commands
+
+```clojure
+(defn stats
+  "Show player statistics"
+  ([] (str "\nHealth: " (apply str (repeat @*health* "♥ "))
+    "\nScore: " @*score*
+    "\nStatus: " @*status*
+    "\nArmor:"  @*armor*
+    "\nWeapon:" @*weapon*
+    "\nMoney:" @*money*)
+  )
+  ([name]
+    (if (contains? (disj @(:inhabitants @*current-room*) *player-name*) name)
+    (if-let [player (first (filter #(= (:name %) name)
+                                 (vals @players-stats)))]
+                            (str "\nName:" (:name player)
+                              "\nHealth: " (apply str (repeat @(:health player) "♥ "))
+                              "\nStatus: " @(:status player)
+                              "\nArmor:"  @(:armor player)
+                              "\nWeapon:" @(:weapon player)
+                              "\nMoney:" @(:money player)
+                            )
+    )
+    (str ""))
+  )
+)
+```
+--------------------------------------------------------------------------------
+```clojure
+(defn grab
+  "Pick something up."
+  [thing]
+  (dosync
+    (cond (integer? (parse-number thing))
+          (if (>= @(*current-room* :money) (parse-number thing))
+            (do
+              (add-money (parse-number thing))
+              (println "You picked up " (parse-number thing) " money")
+              (ref-set (*current-room* :money) (- @(*current-room* :money) (parse-number thing)))
+              (str ""))
+            (str "In this room " @(*current-room* :money) " money"))
+     :else (if (= :money (keyword thing))
+        (do
+          (add-money @(*current-room* :money))
+          (println "You picked up " @(*current-room* :money) " money")
+          (ref-set (*current-room* :money) 0)
+          (str ""))
+        (cond (not (nil? ((get @(*current-room* :items) :weapons) (keyword thing))))
+          (do
+            (discard (name @*weapon*))
+            (ref-set *weapon* ((get @(*current-room* :items) :weapons) (keyword thing)))
+            (alter (:weapons @*current-room*) disj (keyword thing))
+            (str "You picked up the " (keyword thing)))
+        :else (if (not (nil? ((get @(*current-room* :items) :armors) (keyword thing))))
+          (do
+            (discard (name @*armor*))
+            (ref-set *armor* ((get @(*current-room* :items) :armors) (keyword thing)))
+            (alter (:armors @*current-room*) disj (keyword thing))
+            (str "You picked up the " (keyword thing)))
+          (str "Nothing")))))))
+```
+
+
 И переписали server.clj под нашу реализацию.
 
 ```clojure

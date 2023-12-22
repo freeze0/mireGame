@@ -91,7 +91,7 @@ Clojure](https://www.pluralsight.com/courses/functional-programming-clojure ).
 ```
 
 ### restroom
-'''clojure
+```clojure
 {:desc "It's our little hostpital."
  :exits {:north :start :south :bedroom :east :promenade :west :promenade}
  :items {:money 7 :weapons #{} :armors #{}}}
